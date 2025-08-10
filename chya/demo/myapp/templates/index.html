@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chaya & Coffee Calculator - Premium Experience</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-gold: #d4af37;
+      --secondary-gold: #f4d03f;
+      --dark-brown: #3c2414;
+      --light-brown: #8b4513;
+      --cream: #f5f5dc;
+      --deep-navy: #0f172a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .swiper {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.4) contrast(1.1);
+      transition: all 0.8s ease;
+    }
+
+    .slide-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-premium {
+      background: linear-gradient(135deg, var(--primary-gold) 0%, var(--secondary-gold) 100%);
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    .btn-premium::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-premium:hover:not(:active)::before {
+      left: 100%;
+    }
+
+    .btn-premium:hover:not(:active) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-premium:active,
+    .btn-premium:focus {
+      transform: translateY(0px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+    }
+
+    /* Page transitions */
+    .page {
+      display: none;
+      min-height: 100vh;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .page.slide-out {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .floating-animation {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .calculator-modal {
+      backdrop-filter: blur(15px);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .results-page {
+      backdrop-filter: blur(15px);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .price-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .ingredient-card {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .ingredient-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.5);
+    }
+
+    .quantity-selector {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(212, 175, 55, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .quantity-selector:focus {
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      outline: none;
+    }
+
+    .selection-btn {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 2px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .selection-btn:hover:not(.active) {
+      border-color: rgba(212, 175, 55, 0.5);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .selection-btn.active {
+      border-color: var(--primary-gold);
+      background: rgba(212, 175, 55, 0.2);
+    }
+
+    .selection-btn:active {
+      transform: scale(0.98);
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, var(--primary-gold) 0%, var(--secondary-gold) 100%);
+      height: 4px;
+      border-radius: 2px;
+      transition: width 2s ease;
+    }
+
+    .loading-spinner {
+      border: 3px solid rgba(212, 175, 55, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid var(--primary-gold);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .steam-animation {
+      position: absolute;
+      width: 4px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 2px;
+      animation: steam 2s ease-in-out infinite;
+    }
+
+    @keyframes steam {
+      0% { opacity: 0.4; transform: translateY(0px) scale(1); }
+      50% { opacity: 0.8; transform: translateY(-10px) scale(1.1); }
+      100% { opacity: 0.2; transform: translateY(-20px) scale(0.9); }
+    }
+
+    .swiper-pagination-bullet {
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .swiper-pagination-bullet-active {
+      background: var(--primary-gold);
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: var(--primary-gold);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      margin-top: -25px;
+    }
+
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Back button styling */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--primary-gold);
+    }
+  </style>
+</head>
+<body class="bg-gray-900">
+
+  <!-- Home Page -->
+  <div id="homePage" class="page active">
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-effect">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-coffee text-2xl text-yellow-500"></i>
+            <h2 class="font-display text-xl font-bold text-white">Chaya & Coffee</h2>
+          </div>
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="#menu" class="text-white hover:text-yellow-400 transition">Menu</a>
+            <a href="#about" class="text-white hover:text-yellow-400 transition">About</a>
+            <a href="#calculator" class="text-white hover:text-yellow-400 transition">Calculator</a>
+            <a href="#contact" class="text-white hover:text-yellow-400 transition">Contact</a>
+          </div>
+          <button class="md:hidden text-white">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Swiper Container -->
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+
+        <!-- Slide 1: Premium Chaya Experience -->
+        <div class="swiper-slide relative flex items-center justify-center text-center text-white">
+          <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1600&q=80');"></div>
+          
+          <!-- Steam Effects -->
+          <div class="absolute top-1/4 left-1/3 steam-animation" style="animation-delay: 0s;"></div>
+          <div class="absolute top-1/4 left-1/2 steam-animation" style="animation-delay: 0.5s;"></div>
+          <div class="absolute top-1/4 right-1/3 steam-animation" style="animation-delay: 1s;"></div>
+
+          <div class="relative z-10 max-w-4xl mx-auto px-6">
+            <!-- Main Content -->
+            <div class="glass-effect rounded-3xl p-8 md:p-12 mb-8">
+              <div class="floating-animation">
+                <i class="fas fa-leaf text-6xl text-green-400 mb-6"></i>
+              </div>
+              <h1 class="font-display text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                Premium Chaya
+              </h1>
+              <div class="max-w-2xl mx-auto mb-8">
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                  Authentically crafted Kerala-style tea with premium ingredients
+                </p>
+                <p class="text-lg text-gray-300 leading-relaxed">
+                  Experience the rich, aromatic blend of carefully selected tea leaves, 
+                  fresh spices, and creamy milk that defines traditional Indian chai culture.
+                </p>
+              </div>
+              
+              <!-- Features Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-crown text-2xl text-yellow-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Premium Quality</h3>
+                  <p class="text-sm text-gray-300">Hand-picked ingredients</p>
+                </div>
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-clock text-2xl text-green-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Fresh Daily</h3>
+                  <p class="text-sm text-gray-300">Brewed every morning</p>
+                </div>
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-heart text-2xl text-red-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Health Benefits</h3>
+                  <p class="text-sm text-gray-300">Natural antioxidants</p>
+                </div>
+              </div>
+
+              <button onclick="openCalculator('chaya')" class="btn-premium text-black px-10 py-4 rounded-full text-lg font-bold shadow-lg transition-all duration-300">
+                <i class="fas fa-calculator mr-2"></i>
+                Calculate Chaya Ingredients
+              </button>
+            </div>
+
+            <!-- Price Range Info -->
+            <div class="flex justify-center items-center space-x-8 text-sm text-gray-300">
+              <div class="flex items-center">
+                <i class="fas fa-tag text-yellow-400 mr-2"></i>
+                <span>Starting from ₹15</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-users text-blue-400 mr-2"></i>
+                <span>Serves 1-2 people</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-bolt text-green-400 mr-2"></i>
+                <span>Energy Boost</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Premium Coffee Experience -->
+        <div class="swiper-slide relative flex items-center justify-center text-center text-white">
+          <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1600&q=80');"></div>
+          
+          <!-- Steam Effects -->
+          <div class="absolute top-1/4 left-1/4 steam-animation" style="animation-delay: 0.2s;"></div>
+          <div class="absolute top-1/4 center steam-animation" style="animation-delay: 0.7s;"></div>
+          <div class="absolute top-1/4 right-1/4 steam-animation" style="animation-delay: 1.2s;"></div>
+
+          <div class="relative z-10 max-w-4xl mx-auto px-6">
+            <!-- Main Content -->
+            <div class="glass-effect rounded-3xl p-8 md:p-12 mb-8">
+              <div class="floating-animation">
+                <i class="fas fa-coffee text-6xl text-amber-600 mb-6"></i>
+              </div>
+              <h1 class="font-display text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-amber-600 via-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                Artisan Coffee
+              </h1>
+              <div class="max-w-2xl mx-auto mb-8">
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                  Bold, aromatic, and meticulously crafted for coffee connoisseurs
+                </p>
+                <p class="text-lg text-gray-300 leading-relaxed">
+                  From single-origin beans to expert roasting techniques, every cup delivers 
+                  an exceptional coffee experience that awakens your senses and fuels your passion.
+                </p>
+              </div>
+              
+              <!-- Coffee Features Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-mountain text-2xl text-amber-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Single Origin</h3>
+                  <p class="text-sm text-gray-300">Premium sourced beans</p>
+                </div>
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-fire text-2xl text-red-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Fresh Roasted</h3>
+                  <p class="text-sm text-gray-300">Roasted to perfection</p>
+                </div>
+                <div class="feature-card glass-effect rounded-xl p-4">
+                  <i class="fas fa-award text-2xl text-purple-400 mb-2"></i>
+                  <h3 class="font-semibold text-lg">Barista Grade</h3>
+                  <p class="text-sm text-gray-300">Professional quality</p>
+                </div>
+              </div>
+
+              <button onclick="openCalculator('coffee')" class="btn-premium text-black px-10 py-4 rounded-full text-lg font-bold shadow-lg transition-all duration-300">
+                <i class="fas fa-calculator mr-2"></i>
+                Calculate Coffee Ingredients
+              </button>
+            </div>
+
+            <!-- Price Range Info -->
+            <div class="flex justify-center items-center space-x-8 text-sm text-gray-300">
+              <div class="flex items-center">
+                <i class="fas fa-tag text-amber-400 mr-2"></i>
+                <span>Starting from ₹25</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-cup-hot text-orange-400 mr-2"></i>
+                <span>Various sizes available</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-zap text-yellow-400 mr-2"></i>
+                <span>Premium Caffeine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Swiper Controls -->
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </div>
+
+  <!-- Calculator Page -->
+  <div id="calculatorPage" class="page">
+    <button onclick="goToHome()" class="back-btn">
+      <i class="fas fa-arrow-left mr-2"></i>Back
+    </button>
+
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+      <div class="glass-effect rounded-3xl max-w-lg w-full p-8 relative">
+        <div id="calculatorContent">
+          <!-- Dynamic content will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Page -->
+  <div id="resultsPage" class="page">
+    <button onclick="goToCalculator()" class="back-btn">
+      <i class="fas fa-arrow-left mr-2"></i>Back
+    </button>
+
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 pt-20">
+      <div class="max-w-6xl mx-auto">
+        <div class="glass-effect rounded-3xl p-8 relative">
+          <div id="resultsContent">
+            <!-- Dynamic content will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="glass-effect rounded-2xl p-8 text-center text-white">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <p id="loadingText">Calculating your perfect blend...</p>
+      <div class="w-48 bg-gray-700 rounded-full h-1 mt-4 mx-auto">
+        <div id="progressBar" class="progress-bar w-0 h-full rounded-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // Page navigation functions
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+        page.classList.add('slide-out');
+      });
+
+      setTimeout(() => {
+        document.querySelectorAll('.page').forEach(page => {
+          page.classList.remove('slide-out');
+        });
+        document.getElementById(pageId).classList.add('active');
+      }, 250);
+    }
+
+    function goToHome() {
+      showPage('homePage');
+      document.body.style.overflow = 'auto';
+    }
+
+    function goToCalculator() {
+      showPage('calculatorPage');
+    }
+
+    function goToResults() {
+      showPage('resultsPage');
+    }
+
+    // Swiper Configuration
+    var swiper = new Swiper(".mySwiper", {
+      loop: true,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+        dynamicBullets: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      effect: "fade",
+      fadeEffect: {
+        crossFade: true
+      },
+      speed: 800,
+    });
+
+    // Enhanced ingredient calculations data
+    const ingredientDatabase = {
+      chaya: {
+        baseServingSize: 1,
+        ingredients: {
+          teaLeaves: { 
+            amount: 8, 
+            unit: 'grams', 
+            costPerUnit: 0.25, 
+            category: 'base',
+            nutritionalInfo: { caffeine: 47, antioxidants: 'high' }
+          },
+          milk: { 
+            amount: 150, 
+            unit: 'ml', 
+            costPerUnit: 0.053, 
+            category: 'liquid',
+            nutritionalInfo: { protein: 5, calcium: 180 }
+          },
+          sugar: { 
+            amount: 12, 
+            unit: 'grams', 
+            costPerUnit: 0.083, 
+            category: 'sweetener',
+            nutritionalInfo: { calories: 48 }
+          },
+          water: { 
+            amount: 100, 
+            unit: 'ml', 
+            costPerUnit: 0.005, 
+            category: 'liquid',
+            nutritionalInfo: { calories: 0 }
+          },
+          cardamom: { 
+            amount: 2, 
+            unit: 'pods', 
+            costPerUnit: 0.75, 
+            category: 'spice',
+            nutritionalInfo: { antioxidants: 'medium', digestive: true }
+          },
+          ginger: { 
+            amount: 5, 
+            unit: 'grams', 
+            costPerUnit: 0.2, 
+            category: 'spice',
+            nutritionalInfo: { antiInflammatory: true, digestive: true }
+          },
+          cloves: { 
+            amount: 1, 
+            unit: 'piece', 
+            costPerUnit: 0.5, 
+            category: 'spice',
+            nutritionalInfo: { antioxidants: 'high', antimicrobial: true }
+          }
+        },
+        preparationTime: 8,
+        difficulty: 'Easy',
+        servingTemperature: '70-75°C',
+        bestTime: 'Morning/Evening'
+      },
+      coffee: {
+        baseServingSize: 1,
+        ingredients: {
+          coffeeGrounds: { 
+            amount: 15, 
+            unit: 'grams', 
+            costPerUnit: 0.333, 
+            category: 'base',
+            nutritionalInfo: { caffeine: 95, antioxidants: 'high' }
+          },
+          milk: { 
+            amount: 120, 
+            unit: 'ml', 
+            costPerUnit: 0.053, 
+            category: 'liquid',
+            nutritionalInfo: { protein: 4, calcium: 144 }
+          },
+          sugar: { 
+            amount: 10, 
+            unit: 'grams', 
+            costPerUnit: 0.083, 
+            category: 'sweetener',
+            nutritionalInfo: { calories: 40 }
+          },
+          water: { 
+            amount: 180, 
+            unit: 'ml', 
+            costPerUnit: 0.005, 
+            category: 'liquid',
+            nutritionalInfo: { calories: 0 }
+          },
+          chicory: { 
+            amount: 3, 
+            unit: 'grams', 
+            costPerUnit: 0.5, 
+            category: 'additive',
+            nutritionalInfo: { fiber: 'high', caffeine: 0 }
+          }
+        },
+        preparationTime: 5,
+        difficulty: 'Medium',
+        servingTemperature: '65-70°C',
+        bestTime: 'Morning/Afternoon'
+      }
+    };
+
+    let currentCalculation = null;
+
+    // Enhanced calculator backend
+    class RecipeCalculator {
+      constructor(type, peopleCount, servingSize, strength, customizations) {
+        this.type = type;
+        this.peopleCount = peopleCount;
+        this.servingSize = servingSize; // 0.8, 1, 1.3
+        this.strength = strength; // 0.7, 1, 1.4
+        this.customizations = customizations;
+        this.baseData = ingredientDatabase[type];
+      }
+
+      calculateIngredients() {
+        const calculatedIngredients = {};
+        let totalCost = 0;
+        let totalCalories = 0;
+        let totalCaffeine = 0;
+
+        // Base ingredients calculation
+        Object.entries(this.baseData.ingredients).forEach(([ingredient, data]) => {
+          let amount = data.amount * this.peopleCount * this.servingSize;
+          
+          // Apply strength multiplier to base ingredients (tea/coffee)
+          if (['teaLeaves', 'coffeeGrounds'].includes(ingredient)) {
+            amount *= this.strength;
+          }
+
+          // Adjust milk and water proportionally with serving size
+          if (['milk', 'water'].includes(ingredient)) {
+            amount *= this.servingSize;
+          }
+
+          const cost = amount * data.costPerUnit;
+          
+          calculatedIngredients[ingredient] = {
+            amount: Math.round(amount * 100) / 100,
+            unit: data.unit,
+            cost: Math.round(cost * 100) / 100,
+            category: data.category,
+            nutritionalInfo: data.nutritionalInfo
+          };
+
+          totalCost += cost;
+
+          // Calculate nutritional values
+          if (data.nutritionalInfo.calories) {
+            totalCalories += (data.nutritionalInfo.calories * amount) / data.amount;
+          }
+          if (data.nutritionalInfo.caffeine) {
+            totalCaffeine += (data.nutritionalInfo.caffeine * amount) / data.amount;
+          }
+        });
+
+        // Apply customizations
+        this.customizations.forEach(custom => {
+          if (calculatedIngredients[custom.ingredient]) {
+            calculatedIngredients[custom.ingredient].amount += custom.amount;
+            calculatedIngredients[custom.ingredient].cost += custom.cost;
+          } else {
+            calculatedIngredients[custom.ingredient] = {
+              amount: custom.amount,
+              unit: custom.unit,
+              cost: custom.cost,
+              category: 'customization'
+            };
+          }
+          totalCost += custom.cost;
+        });
+
+        // Calculate preparation time based on complexity
+        const preparationTime = Math.round(
+          this.baseData.preparationTime * 
+          (1 + (this.peopleCount - 1) * 0.2) * 
+          (1 + this.customizations.length * 0.1)
+        );
+
+        return {
+          type: this.type,
+          peopleCount: this.peopleCount,
+          servingSize: this.servingSize,
+          strength: this.strength,
+          ingredients: calculatedIngredients,
+          totalCost: Math.round(totalCost * 100) / 100,
+          costPerPerson: Math.round((totalCost / this.peopleCount) * 100) / 100,
+          preparationTime: preparationTime,
+          difficulty: this.baseData.difficulty,
+          customizations: this.customizations,
+          nutritionalInfo: {
+            totalCalories: Math.round(totalCalories),
+            totalCaffeine: Math.round(totalCaffeine),
+            caloriesPerServing: Math.round(totalCalories / this.peopleCount)
+          },
+          servingInfo: {
+            temperature: this.baseData.servingTemperature,
+            bestTime: this.baseData.bestTime
+          }
+        };
+      }
+    }
+
+    function openCalculator(type) {
+      const isChaya = type === 'chaya';
+      const title = isChaya ? 'Chaya' : 'Coffee';
+      const icon = isChaya ? 'leaf' : 'coffee';
+      const color = isChaya ? 'green' : 'amber';
+      
+      const calculatorContent = document.getElementById('calculatorContent');
+      calculatorContent.innerHTML = `
+        <div class="text-center mb-6">
+          <i class="fas fa-${icon} text-4xl text-${color}-400 mb-4"></i>
+          <h2 class="font-display text-3xl font-bold text-white mb-2">${title} Calculator</h2>
+          <p class="text-gray-300">Calculate ingredients and cost for your perfect ${title.toLowerCase()}</p>
+        </div>
+
+        <div class="space-y-6">
+          <!-- People Count Selection -->
+          <div>
+            <label class="block text-white font-semibold mb-3">
+              <i class="fas fa-users text-${color}-400 mr-2"></i>
+              Number of People:
+            </label>
+            <div class="flex items-center justify-center space-x-4">
+              <button onclick="changePeopleCount(-1)" class="btn-premium w-12 h-12 rounded-full text-black font-bold text-xl">-</button>
+              <div class="text-center">
+                <input type="number" id="peopleCount" value="2" min="1" max="50" 
+                       class="quantity-selector w-24 h-12 text-center text-white bg-transparent rounded-xl text-xl font-bold"
+                       onchange="updateIngredients()">
+                <div class="text-sm text-gray-400 mt-1">people</div>
+              </div>
+              <button onclick="changePeopleCount(1)" class="btn-premium w-12 h-12 rounded-full text-black font-bold text-xl">+</button>
+            </div>
+          </div>
+
+          <!-- Serving Size Options -->
+          <div>
+            <label class="block text-white font-semibold mb-3">
+              <i class="fas fa-cup-hot text-${color}-400 mr-2"></i>
+              Serving Size:
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="setServingSize(0.8, 'Small')" class="selection-btn serving-btn rounded-xl p-3 text-white">
+                <div class="font-semibold">Small</div>
+                <div class="text-xs text-gray-400">150ml</div>
+              </button>
+              <button onclick="setServingSize(1, 'Regular')" class="selection-btn serving-btn rounded-xl p-3 text-white active">
+                <div class="font-semibold">Regular</div>
+                <div class="text-xs text-gray-400">200ml</div>
+              </button>
+              <button onclick="setServingSize(1.3, 'Large')" class="selection-btn serving-btn rounded-xl p-3 text-white">
+                <div class="font-semibold">Large</div>
+                <div class="text-xs text-gray-400">250ml</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Strength Options -->
+          <div>
+            <label class="block text-white font-semibold mb-3">
+              <i class="fas fa-bolt text-${color}-400 mr-2"></i>
+              Strength:
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="setStrength(0.7, 'Light')" class="selection-btn strength-btn rounded-xl p-3 text-white">
+                <div class="font-semibold">Light</div>
+                <div class="text-xs text-gray-400">Mild taste</div>
+              </button>
+              <button onclick="setStrength(1, 'Medium')" class="selection-btn strength-btn rounded-xl p-3 text-white active">
+                <div class="font-semibold">Medium</div>
+                <div class="text-xs text-gray-400">Perfect balance</div>
+              </button>
+              <button onclick="setStrength(1.4, 'Strong')" class="selection-btn strength-btn rounded-xl p-3 text-white">
+                <div class="font-semibold">Strong</div>
+                <div class="text-xs text-gray-400">Rich & bold</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Special Customizations -->
+          <div>
+            <label class="block text-white font-semibold mb-3">
+              <i class="fas fa-star text-${color}-400 mr-2"></i>
+              Special Options:
+            </label>
+            <div class="space-y-2">
+              <label class="flex items-center text-white cursor-pointer">
+                <input type="checkbox" id="extraSweet" class="mr-3 text-${color}-500">
+                <span>Extra Sweet (+2g sugar per person)</span>
+              </label>
+              <label class="flex items-center text-white cursor-pointer">
+                <input type="checkbox" id="lessSweet" class="mr-3 text-${color}-500">
+                <span>Less Sweet (-50% sugar)</span>
+              </label>
+              ${isChaya ? `
+                <label class="flex items-center text-white cursor-pointer">
+                  <input type="checkbox" id="extraGinger" class="mr-3 text-green-500">
+                  <span>Extra Ginger (+3g per person)</span>
+                </label>
+                <label class="flex items-center text-white cursor-pointer">
+                  <input type="checkbox" id="extraCardamom" class="mr-3 text-green-500">
+                  <span>Extra Cardamom (+1 pod per person)</span>
+                </label>
+              ` : `
+                <label class="flex items-center text-white cursor-pointer">
+                  <input type="checkbox" id="extraMilk" class="mr-3 text-amber-500">
+                  <span>Extra Creamy (+30ml milk per person)</span>
+                </label>
+                <label class="flex items-center text-white cursor-pointer">
+                  <input type="checkbox" id="addChicory" class="mr-3 text-amber-500">
+                  <span>Add Extra Chicory (+2g per person)</span>
+                </label>
+              `}
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-3 mt-8">
+            <button onclick="calculateIngredients('${type}')" class="btn-premium flex-1 py-3 rounded-xl text-black font-semibold">
+              <i class="fas fa-calculator mr-2"></i>Calculate Ingredients
+            </button>
+            <button onclick="resetCalculator()" class="glass-effect flex-1 py-3 rounded-xl text-white font-semibold border border-gray-400 hover:bg-white hover:bg-opacity-10 transition">
+              <i class="fas fa-refresh mr-2"></i>Reset
+            </button>
+          </div>
+        </div>
+      `;
+      
+      showPage('calculatorPage');
+      window.currentType = type;
+      window.servingMultiplier = 1;
+      window.strengthMultiplier = 1;
+    }
+
+    function calculateIngredients(type) {
+      showLoadingWithProgress();
+      
+      const peopleCount = parseInt(document.getElementById('peopleCount').value) || 1;
+      const servingMultiplier = window.servingMultiplier || 1;
+      const strengthMultiplier = window.strengthMultiplier || 1;
+      const customizations = getCustomizations(type, peopleCount);
+      
+      // Use the enhanced calculator
+      const calculator = new RecipeCalculator(type, peopleCount, servingMultiplier, strengthMultiplier, customizations);
+      
+      setTimeout(() => {
+        currentCalculation = calculator.calculateIngredients();
+        hideLoading();
+        showResults();
+      }, 3000);
+    }
+
+    function getCustomizations(type, peopleCount) {
+      const customizations = [];
+      
+      if (document.getElementById('extraSweet')?.checked) {
+        customizations.push({
+          ingredient: 'sugar',
+          amount: 2 * peopleCount,
+          unit: 'grams',
+          cost: 2 * peopleCount * 0.083,
+          name: 'Extra Sweet'
+        });
+      }
+      
+      if (document.getElementById('lessSweet')?.checked) {
+        customizations.push({
+          ingredient: 'sugar',
+          amount: -6 * peopleCount,
+          unit: 'grams',
+          cost: -6 * peopleCount * 0.083,
+          name: 'Less Sweet'
+        });
+      }
+      
+      if (type === 'chaya') {
+        if (document.getElementById('extraGinger')?.checked) {
+          customizations.push({
+            ingredient: 'ginger',
+            amount: 3 * peopleCount,
+            unit: 'grams',
+            cost: 3 * peopleCount * 0.2,
+            name: 'Extra Ginger'
+          });
+        }
+        
+        if (document.getElementById('extraCardamom')?.checked) {
+          customizations.push({
+            ingredient: 'cardamom',
+            amount: 1 * peopleCount,
+            unit: 'pods',
+            cost: 1 * peopleCount * 0.75,
+            name: 'Extra Cardamom'
+          });
+        }
+      } else {
+        if (document.getElementById('extraMilk')?.checked) {
+          customizations.push({
+            ingredient: 'milk',
+            amount: 30 * peopleCount,
+            unit: 'ml',
+            cost: 30 * peopleCount * 0.053,
+            name: 'Extra Creamy'
+          });
+        }
+        
+        if (document.getElementById('addChicory')?.checked) {
+          customizations.push({
+            ingredient: 'chicory',
+            amount: 2 * peopleCount,
+            unit: 'grams',
+            cost: 2 * peopleCount * 0.5,
+            name: 'Extra Chicory'
+          });
+        }
+      }
+      
+      return customizations;
+    }
+
+    function showResults() {
+      const calc = currentCalculation;
+      const isChaya = calc.type === 'chaya';
+      const title = isChaya ? 'Chaya' : 'Coffee';
+      const icon = isChaya ? 'leaf' : 'coffee';
+      const color = isChaya ? 'green' : 'amber';
+      
+      const resultsContent = document.getElementById('resultsContent');
+      resultsContent.innerHTML = `
+        <div class="text-center mb-8">
+          <i class="fas fa-${icon} text-5xl text-${color}-400 mb-4"></i>
+          <h2 class="font-display text-4xl font-bold text-white mb-2">${title} Recipe & Cost Analysis</h2>
+          <p class="text-gray-300">Complete breakdown for ${calc.peopleCount} ${calc.peopleCount > 1 ? 'people' : 'person'}</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div class="price-card rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-${color}-400">₹${calc.totalCost}</div>
+            <div class="text-sm text-gray-300">Total Cost</div>
+            <div class="text-xs text-gray-400">₹${calc.costPerPerson} per person</div>
+          </div>
+          <div class="price-card rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-blue-400">${calc.preparationTime}min</div>
+            <div class="text-sm text-gray-300">Prep Time</div>
+            <div class="text-xs text-gray-400">${calc.difficulty}</div>
+          </div>
+          <div class="price-card rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-purple-400">${calc.nutritionalInfo.totalCalories}</div>
+            <div class="text-sm text-gray-300">Total Calories</div>
+            <div class="text-xs text-gray-400">${calc.nutritionalInfo.caloriesPerServing} per serving</div>
+          </div>
+          <div class="price-card rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-400">${calc.nutritionalInfo.totalCaffeine}mg</div>
+            <div class="text-sm text-gray-300">Total Caffeine</div>
+            <div class="text-xs text-gray-400">${Math.round(calc.nutritionalInfo.totalCaffeine/calc.peopleCount)}mg per serving</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <!-- Ingredients List -->
+          <div>
+            <h3 class="text-2xl font-bold text-white mb-4">
+              <i class="fas fa-list-ul text-${color}-400 mr-2"></i>
+              Ingredients Required
+            </h3>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+              ${Object.entries(calc.ingredients)
+                .sort(([,a], [,b]) => (b.cost || 0) - (a.cost || 0))
+                .map(([ingredient, data]) => `
+                <div class="ingredient-card rounded-lg p-4 flex justify-between items-center">
+                  <div>
+                    <div class="font-semibold text-white capitalize">${ingredient.replace(/([A-Z])/g, ' $1').toLowerCase()}</div>
+                    <div class="text-sm text-gray-300">${data.amount} ${data.unit}</div>
+                    ${data.category ? `<div class="text-xs text-gray-400 capitalize">${data.category}</div>` : ''}
+                  </div>
+                  <div class="text-right">
+                    <div class="text-${color}-400 font-bold">₹${data.cost}</div>
+                    <div class="text-xs text-gray-400">₹${(data.cost/calc.peopleCount).toFixed(2)}/person</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Recipe Info & Instructions -->
+          <div>
+            <h3 class="text-2xl font-bold text-white mb-4">
+              <i class="fas fa-info-circle text-${color}-400 mr-2"></i>
+              Recipe Information
+            </h3>
+            
+            <div class="space-y-4 mb-6">
+              <div class="price-card rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-white font-semibold">Serving Temperature</span>
+                  <span class="text-orange-400 font-bold">${calc.servingInfo.temperature}</span>
+                </div>
+                <div class="text-sm text-gray-300">Best Time: ${calc.servingInfo.bestTime}</div>
+              </div>
+
+              ${calc.customizations.length > 0 ? `
+                <div class="price-card rounded-lg p-4">
+                  <div class="text-white font-semibold mb-2">Your Customizations</div>
+                  <div class="space-y-1">
+                    ${calc.customizations.map(custom => `
+                      <div class="text-sm text-gray-300 flex justify-between">
+                        <span>${custom.name}</span>
+                        <span class="text-${color}-400">₹${Math.abs(custom.cost).toFixed(2)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Quick Instructions -->
+            <div class="price-card rounded-lg p-4">
+              <h4 class="text-white font-semibold mb-3">Quick Instructions</h4>
+              <div class="space-y-2 text-sm text-gray-300">
+                ${getQuickInstructions(calc.type).map((step, index) => `
+                  <div class="flex items-start">
+                    <div class="w-6 h-6 bg-${color}-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                      ${index + 1}
+                    </div>
+                    <div>${step}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button onclick="printRecipe()" class="btn-premium px-6 py-3 rounded-xl text-black font-semibold">
+            <i class="fas fa-print mr-2"></i>Print Recipe
+          </button>
+          <button onclick="shareRecipe()" class="glass-effect px-6 py-3 rounded-xl text-white font-semibold border border-gray-400 hover:bg-white hover:bg-opacity-10 transition">
+            <i class="fas fa-share mr-2"></i>Share
+          </button>
+          <button onclick="saveRecipe()" class="glass-effect px-6 py-3 rounded-xl text-white font-semibold border border-gray-400 hover:bg-white hover:bg-opacity-10 transition">
+            <i class="fas fa-bookmark mr-2"></i>Save Recipe
+          </button>
+          <button onclick="newCalculation()" class="glass-effect px-6 py-3 rounded-xl text-white font-semibold border border-gray-400 hover:bg-white hover:bg-opacity-10 transition">
+            <i class="fas fa-plus mr-2"></i>New Calculation
+          </button>
+        </div>
+      `;
+      
+      goToResults();
+    }
+
+    function getQuickInstructions(type) {
+      if (type === 'chaya') {
+        return [
+          'Boil water in heavy-bottomed pan',
+          'Add tea leaves and spices, boil 2-3 mins',
+          'Add milk and bring to boil',
+          'Add sugar, let dissolve completely',
+          'Simmer 3-4 minutes until fragrant',
+          'Strain and serve hot immediately'
+        ];
+      } else {
+        return [
+          'Heat water to optimal temperature',
+          'Add coffee grounds and chicory',
+          'Brew for 2-3 minutes with stirring',
+          'Add hot milk, gentle boil',
+          'Add sugar, stir until dissolved',
+          'Filter and serve in preheated cups'
+        ];
+      }
+    }
+
+    // Helper functions
+    function changePeopleCount(delta) {
+      const peopleInput = document.getElementById('peopleCount');
+      const currentCount = parseInt(peopleInput.value);
+      const newCount = Math.max(1, Math.min(50, currentCount + delta));
+      peopleInput.value = newCount;
+    }
+
+    function setServingSize(multiplier, size) {
+      window.servingMultiplier = multiplier;
+      
+      document.querySelectorAll('.serving-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.closest('.serving-btn').classList.add('active');
+    }
+
+    function setStrength(multiplier, strength) {
+      window.strengthMultiplier = multiplier;
+      
+      document.querySelectorAll('.strength-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.closest('.strength-btn').classList.add('active');
+    }
+
+    function showLoadingWithProgress() {
+      const overlay = document.getElementById('loadingOverlay');
+      const progressBar = document.getElementById('progressBar');
+      const loadingText = document.getElementById('loadingText');
+      
+      overlay.classList.remove('hidden');
+      progressBar.style.width = '0%';
+      
+      const messages = [
+        'Analyzing ingredient database...',
+        'Calculating optimal proportions...',
+        'Computing nutritional values...',
+        'Optimizing cost efficiency...',
+        'Finalizing your custom recipe...'
+      ];
+      
+      let progress = 0;
+      let messageIndex = 0;
+      
+      const interval = setInterval(() => {
+        progress += Math.random() * 20 + 5;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        
+        if (messageIndex < messages.length - 1 && progress > (messageIndex + 1) * 20) {
+          messageIndex++;
+          loadingText.textContent = messages[messageIndex];
+        }
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+        }
+      }, 150);
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+
+    function resetCalculator() {
+      document.getElementById('peopleCount').value = 2;
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      
+      document.querySelectorAll('.serving-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.serving-btn:nth-child(2)').classList.add('active');
+      
+      document.querySelectorAll('.strength-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.strength-btn:nth-child(2)').classList.add('active');
+      
+      window.servingMultiplier = 1;
+      window.strengthMultiplier = 1;
+    }
+
+    function printRecipe() {
+      window.print();
+    }
+
+    function shareRecipe() {
+      if (navigator.share) {
+        navigator.share({
+          title: `${currentCalculation.type} Recipe for ${currentCalculation.peopleCount} people`,
+          text: `Check out this ${currentCalculation.type} recipe! Total cost: ₹${currentCalculation.totalCost}, Prep time: ${currentCalculation.preparationTime}min`,
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(`${currentCalculation.type} Recipe - Cost: ₹${currentCalculation.totalCost} for ${currentCalculation.peopleCount} people`);
+        alert('Recipe details copied to clipboard!');
+      }
+    }
+
+    function saveRecipe() {
+      const recipe = {
+        ...currentCalculation,
+        savedAt: new Date().toISOString(),
+        id: Date.now()
+      };
+      
+      let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+      savedRecipes.push(recipe);
+      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+      
+      alert('Recipe saved successfully!');
+    }
+
+    function newCalculation() {
+      goToCalculator();
+      setTimeout(() => {
+        openCalculator(currentCalculation.type);
+      }, 300);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('resultsPage').classList.contains('active')) {
+          goToCalculator();
+        } else if (document.getElementById('calculatorPage').classList.contains('active')) {
+          goToHome();
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
